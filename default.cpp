@@ -27,7 +27,7 @@ int main(int argc, char *argv[])
 
     cin >> T;
     for (int i = 1; i <= T; i++)
-        cout << "Case #" << T << ": " << Solve() << endl;
+        cout << "Case #" << i << ": " << Solve() << endl;
     return 0;
 }
 
