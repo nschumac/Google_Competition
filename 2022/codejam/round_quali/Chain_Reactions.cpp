@@ -7,117 +7,54 @@
 #include <set>
 #include <unordered_map>
 #include <unordered_set>
+#include <unistd.h>
 
 using namespace std;
 
 typedef long long ll;
 typedef unsigned long long ull;
 
-struct node
-{
-	int to;
-	std::set<int> from;
-	int _value;
-};
+int F[100001], P[100001];
+vector<int> adj[100001];
 
-int doPath(int idx, std::map<int, node>& nodes, int val)
+long long dfs(int cur, long long &fun)
 {
-	// change all froms to -1
-	for (auto it = nodes[idx].from.begin(); it != nodes[idx].from.end(); ++it)
-		nodes[*it].to = -1;
-	if (nodes[idx].to == -1)
-		return nodes[idx]._value;
-	int val2 = doPath(nodes[idx].to, nodes, nodes[idx]._value);
-	return max(val,val2);
-}
+	if (adj[cur].size() == 0) return F[cur];
 
-int solveRecursively(int cur, std::set<int> Inits, std::map<int, node> nodes)
-{
-	int fun = 0;
-	int maxval = 0;
-	Inits.erase(cur);
-	fun = doPath(cur, nodes, nodes[cur]._value);
-	for (auto it = Inits.begin(); it != Inits.end(); ++it)
-		maxval = max(maxval, solveRecursively(*it, Inits, nodes));
-	return fun + maxval;
+	vector<int> children;
+
+	for (int i = 0; i < adj[cur].size(); ++i)
+		children.push_back(dfs(adj[cur][i], fun));
+	
+	sort(children.begin(), children.end());
+
+	for (int i = 1; i < children.size(); ++i)
+		fun += children[i];
+
+	return max(F[cur], children[0]);
 }
 
 
 string Solve()
 {
-	int N;
-	int fun = 0;
-	int buf;
+	long long fun = 0, N = 0;
+
 	cin >> N;
 
-	std::map<int, node> nodes;
-	std::set<int>	Initiators;
+	for (int i = 1; i < N + 1; ++i)
+		cin >> F[i];
+	
+	for (int i = 0; i < N + 1; ++i)
+		adj[i].clear();
 
-	for (int i = 0; i < N; ++i)
+	for (int i = 1; i < N + 1; ++i)
 	{
-		cin >> buf;
-		nodes.insert(make_pair(i, node()));
-		nodes[i]._value = buf;
-		Initiators.insert(i);
+		cin >> P[i];
+		adj[P[i]].push_back(i);
 	}
 
-	// fill in indexes
-	for (int i = 0; i < N; ++i)
-	{
-		cin >> buf;
-		// convert input to index
-		--buf;
-		nodes[i].to = buf;
-		if (buf == -1)
-			continue;
-		// insert from
-		nodes[buf].from.insert(i);
-		//remove index because its being pointed too
-		Initiators.erase(buf);
-	}
-
-	int addition = 0;
-	// shorten paths that only have one Initiator
-	for (auto it = Initiators.begin(); it != Initiators.end(); ++it)
-	{
-		int next = nodes[*it].to;
-		if (next == -1)
-		{
-			addition += nodes[*it]._value;
-			nodes.erase(*it);
-			Initiators.erase(it--);
-			continue;
-		}
-		while (true)
-		{
-			// follow reaction check if there are multiple pointing to that node
-			if (nodes[next].from.size() > 1)
-				break;
-			nodes[*it]._value = max(nodes[next]._value, nodes[*it]._value);
-			int buf = nodes[next].to;
-
-			nodes[*it].to = buf;
-			nodes[buf].from.erase(next);
-			nodes[buf].from.insert(*it);
-
-			nodes.erase(next);
-			next = buf;
-			// hit void
-			if (buf == -1)
-			{
-				fun += nodes[*it]._value;
-				nodes.erase(*it);
-				Initiators.erase(it--);
-				break;
-			}
-		}
-	}
-
-	// should be a bit more clean now
-	for (auto it = Initiators.begin(); it != Initiators.end(); ++it)
-		fun = max(fun, solveRecursively(*it, Initiators, nodes));
-
-	return to_string(fun + addition);
+	fun += dfs(0, fun);
+	return to_string(fun);
 }
 
 int main(int argc, char* argv[])
