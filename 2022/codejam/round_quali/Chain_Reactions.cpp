@@ -1,4 +1,4 @@
-// Fails but has the right answer | TIME LIMIT EXCEEDED
+// simple dfs on the root gets the right answer
 #include <iostream>
 #include <algorithm>
 #include <string>
