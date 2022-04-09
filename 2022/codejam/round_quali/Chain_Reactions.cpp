@@ -14,46 +14,51 @@ using namespace std;
 typedef long long ll;
 typedef unsigned long long ull;
 
-int F[100001], P[100001];
-vector<int> adj[100001];
-
-long long dfs(int cur, long long &fun)
+long long dfs(int cur, vector<int> &values, vector< set<int> > &adj, long long &fun)
 {
-	if (adj[cur].size() == 0) return F[cur];
+	if (adj[cur].size() == 0) return values[cur];
 
-	vector<int> children;
+	multiset<int> children;
 
-	for (int i = 0; i < adj[cur].size(); ++i)
-		children.push_back(dfs(adj[cur][i], fun));
+	for (auto it = adj[cur].begin(); it != adj[cur].end(); ++it)
+		children.insert(dfs(*it, values, adj, fun));
 	
-	sort(children.begin(), children.end());
-
-	for (int i = 1; i < children.size(); ++i)
-		fun += children[i];
-
-	return max(F[cur], children[0]);
+	for (auto it = ++children.begin(); it != children.end(); ++it)
+		fun += *it;
+	return max(values[cur], *children.begin());
 }
 
 
 string Solve()
 {
-	long long fun = 0, N = 0;
+	long long fun = 0;
+
+	int N;
+	vector<int> values;
+	vector< set<int> > adj;
 
 	cin >> N;
 
-	for (int i = 1; i < N + 1; ++i)
-		cin >> F[i];
-	
-	for (int i = 0; i < N + 1; ++i)
-		adj[i].clear();
+	values.resize(N + 1);
+	adj.resize(N + 1);
 
-	for (int i = 1; i < N + 1; ++i)
+	// base
+	values[0] = 0;
+
+	for (int i = 1, buf; i < N + 1; ++i)
 	{
-		cin >> P[i];
-		adj[P[i]].push_back(i);
+	    cin >> buf;
+	    values[i] =  buf;
+	}
+		
+
+	for (int i = 1, buf; i < N + 1; ++i)
+	{
+		cin >> buf;
+		adj[buf].insert(i);
 	}
 
-	fun += dfs(0, fun);
+	fun += dfs(0, values, adj, fun);
 	return to_string(fun);
 }
 
