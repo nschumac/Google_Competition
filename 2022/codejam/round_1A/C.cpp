@@ -12,14 +12,25 @@ using namespace std;
 typedef long long ll;
 typedef unsigned long long ull;
 
+int weights[101];
 
 string Solve()
 {
-    string answer = "";
 
+	int E, W;
+	cin >> E >> W;
 
+	vector< vector<int> > exercises(E, vector<int>(W));
 
-    return answer;
+	for (int i = 0; i < E; ++i)
+		for (int j = 0; j < W; ++j)
+			cin >> exercises[i][j];
+
+	long long amount = 0;
+
+	
+
+    return ;
 }
 
 int main(int argc, char *argv[])
